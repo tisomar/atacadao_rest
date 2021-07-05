@@ -1,0 +1,44 @@
+version: '2'
+services:
+  bd:
+    container_name: atacadao-bd
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: atacadao
+      MYSQL_DATABASE: atacadao
+      MYSQL_USER: atacadao
+      MYSQL_PASSWORD: atacadao
+    volumes:
+      - ./docker/bd:/docker-entrypoint-initdb.d
+    restart: always
+    networks:
+      atacadao-net:
+        ipv4_address: 35.197.112.231
+  servico:
+    container_name: atacadao-servico
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "80:80"
+    restart: always
+    links:
+      - bd
+    depends_on:
+      - bd
+    networks:
+      atacadao-net:
+        ipv4_address: 35.197.112.232
+networks:
+  atacadao-net:
+    ipam:
+      config:
+        - subnet: 35.197.0.0/16
+          #docker-compose v3+ do not use ip_range
+          ip_range: 35.197.5.0/24
+
+
